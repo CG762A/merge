@@ -167,6 +167,11 @@ cc.Class({
         hallNode: {
             default: null,
             type: cc.Node
+        },
+
+        checkPointTips_Node: {
+            default: null,
+            type: cc.Node
         }
     },
 
@@ -178,7 +183,7 @@ cc.Class({
         this.descNode.active = true;
         this.unDescNode.active = false;
 
-
+        this.checkPointTips_Node.active = false;
     },
 
     refreshUI: function () {
@@ -217,41 +222,44 @@ cc.Class({
 
 
         window.Notification.on("UIMgr_pop", function (data) {
-            console.log(data.length);
+            //console.log(data.length);
             if (data.length == 0) {
-                console.log("显示大厅");
+                //console.log("显示大厅");
             } else {
 
             }
         });
 
         window.Notification.on("UIMgr_push", function (data) {
-            console.log(data.length);
+            //console.log(data.length);
             if (data.length > 0) {
-                console.log("隐藏大厅");
+                //console.log("隐藏大厅");
             } else {
 
             }
         });
 
         window.Notification.on("go_Checkpoint", function (data) {
-            console.log("关卡按钮被点击");
-            console.log(data);
+            // console.log("关卡按钮被点击");
+            // console.log(data);
 
             cc.audioMgr.playEffect("UI");
 
-
+            cc.find("Canvas/loadingNode").getComponent(cc.Animation).play();
+            self.curCheckpoint = data.idx;
+            self.checkPointTips_Node.getComponent("Checkpoint").setCurCheckpoint(data.idx);
+            self.checkPointTips_Node.active = true;
             //1，先播放一个动画，在动画的过程中删除 现存的 游戏地图
             //2,加载一个新的地图，开始游戏
             //首先要把主基地数据存起来
             cc.dataMgr.saveGameData();
-
+           
             self.inCheckpointCompatible();
             //删除主基地
             //加载关卡内容
             self.game.clearGame();
             self.game.loadGame(data.idx);
-
+           
           
         });
 
@@ -449,7 +457,7 @@ cc.Class({
         cc.audioMgr.playEffect("UI");
 
         // this.checkpointLayer.active = true;
-        cc.uiMgr.Push("MapChooseFrame", { index: 3 })
+        cc.uiMgr.Push("MapChooseFrame", { index:  cc.dataMgr.getCurCheckpoint() - 1 })
 
     },
 
@@ -457,7 +465,8 @@ cc.Class({
         console.log("hallBtn Click~");
 
         cc.audioMgr.playEffect("UI");
-
+        this.checkPointTips_Node.active = false;
+        cc.find("Canvas/loadingNode").getComponent(cc.Animation).play();
         this.outCheckpointCompatible();
         //删除主基地
         //加载关卡内容
@@ -843,5 +852,48 @@ cc.Class({
     // called every frame
     update: function (dt) {
 
+    },
+
+    reCheckpoint:function() {
+        
+        cc.audioMgr.playEffect("UI");
+
+        cc.find("Canvas/loadingNode").getComponent(cc.Animation).play();
+
+        this.checkPointTips_Node.getComponent("Checkpoint").setCurCheckpoint(this.curCheckpoint);
+        this.checkPointTips_Node.getComponent("Checkpoint").beginCheckpoint();
+        this.checkPointTips_Node.active = true;
+       
+       
+      
+        //删除主基地
+        //加载关卡内容
+        this.game.clearGame();
+        this.game.loadGame(this.curCheckpoint);
+    },
+
+    nextCheckpoint:function() {
+        this.curCheckpoint++;
+        cc.audioMgr.playEffect("UI");
+
+        cc.find("Canvas/loadingNode").getComponent(cc.Animation).play();
+
+        this.checkPointTips_Node.getComponent("Checkpoint").setCurCheckpoint(this.curCheckpoint);
+        this.checkPointTips_Node.getComponent("Checkpoint").beginCheckpoint();
+        this.checkPointTips_Node.active = true;
+       
+       
+      
+        //删除主基地
+        //加载关卡内容
+        this.game.clearGame();
+        this.game.loadGame(this.curCheckpoint);
+    },
+
+    goCheckpointList:function() {
+        cc.audioMgr.playEffect("UI");
+
+       
+        cc.uiMgr.Push("MapChooseFrame", { index: cc.dataMgr.getCurCheckpoint() - 1 })
     },
 });
