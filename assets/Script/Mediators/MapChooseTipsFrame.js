@@ -17,7 +17,7 @@ export default class MapChooseTipsFrame extends cc.Component {
         var checkpoint_conf = cc.Config["checkpoint"][this.data.idx]
         var language_conf = cc.Config["language"][checkpoint_conf.item_language]
         this.node.getChildByName("title").getComponent(cc.Label).string = "第"+this.data.idx+"关"
-        this.node.getChildByName("desc").getComponent(cc.Label).string = cc.tools.stringFormat(language_conf.Chinese,checkpoint_conf.item)
+        //this.node.getChildByName("desc").getComponent(cc.Label).string = cc.tools.stringFormat(language_conf.Chinese,checkpoint_conf.item)
 
         this.node.getChildByName("openBtn").on('click',function(event, customeData){
             window.Notification.emit("go_Checkpoint",{idx:self.data.idx});
